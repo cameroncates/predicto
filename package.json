@@ -1,0 +1,25 @@
+{
+  "name": "project-predicto",
+  "version": "1.0.0",
+  "description": "My good Nuxt.js project",
+  "author": "cameron",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@mdi/font": "^5.5.55",
+    "firebase": "^7.20.0",
+    "fs": "0.0.1-security",
+    "jquery": "^3.5.1",
+    "moment": "^2.27.0",
+    "nuxt": "^2.0.0",
+    "pdf": "^0.1.0",
+    "pdfjs-dist": "^2.4.456",
+    "pdfreader": "^1.0.7"
+  },
+  "devDependencies": {}
+}
