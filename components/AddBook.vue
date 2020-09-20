@@ -29,10 +29,6 @@
 
               </div>
           </div>
-          <!-- <p class="w-100 mt-5 pt-5 text-sm text-center" v-if="chapters.length == 0">
-              <span class="mdi mdi-information"></span> <br>
-              <span>Nothing to Preview</span>
-          </p> -->
           <div v-else>
               <div class="d-flex mb-5 justify-content-end">
                 <div class="p-2">

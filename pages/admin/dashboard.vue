@@ -12,6 +12,7 @@
         </div>
         <div class="w-100">
             <add-book v-if="tab=='book'" />
+            <add-paper v-else-if="tab=='paper'" />
         </div>
     </div>
 </div>
@@ -20,14 +21,16 @@
 <script>
 import logo from "../../components/Logo"
 import addBook from "../../components/AddBook"
+import addPaper from "../../components/AddPaper"
 export default {
   components: {
     logo,
-    "add-book": addBook
+    "add-book": addBook,
+    "add-paper": addPaper
   },    
   data() {
       return {
-          tab: "book",
+          tab: "paper",
           navbar: [
               { title: "Books", value: "book", icon: "mdi mdi-book-open" },
               { title: "Add Paper", value: "paper", icon: "mdi mdi-file-document-multiple" },

@@ -200,9 +200,44 @@ Vue.mixin({
                 if(topic_end == -1) {
                     return topics
                 }
-            }
-            
+            }  
             console.log('-------------------------------------------------')
+        },
+        getSection(paper) {            
+            let lowercase = paper.toLowerCase()
+
+            let sectionB = lowercase.split("section c"),
+                sectionC = null
+            if(sectionB.length == 2) {
+                sectionC = sectionB[1]
+                sectionB = sectionB[0].split("section b")
+                if(sectionB.length == 2) {
+                    sectionB = sectionB[1]
+                    return [ sectionB, sectionC ]
+                }
+                else {
+                    this.alertmsg("Error Parsing Section B From Paper", "danger")
+                    return -1
+
+                }
+            }
+            else {
+                this.alertmsg("Error Parsing Sections From Paper", "danger")
+                return -1 
+            }
+        },
+        getQuestions(section) {
+            let maxQ = 100, cursor = 0, questions = []
+            for(let j=1; j<=maxQ; j++) {
+                let Qend = section.indexOf(" " + (j+1) + ". ")
+                let q = section.substring(cursor, Qend == -1 ? 10000 : Qend)
+                questions.push({ title: q, chapter: "Select Chapter", topics: [], subtopics: [], topic: "Select Topic", subtopic: "Select Subtopic" })
+                cursor = Qend
+
+                if(Qend == -1 ) {
+                    return questions
+                }
+            }
         }
     }
 })
