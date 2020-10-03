@@ -41,11 +41,11 @@ body {
 .hov:hover {
     transition: 0.3s;
     background: rgba(0, 0, 0, 0.055) !important;
-    background-color: rgba(0, 123, 255, 0.050) !important;
+    /* background-color: rgba(0, 123, 255, 0.050) !important; */
 }
 .hov:active {
     transition: 0.1s;
-    background-color: rgba(0, 123, 255, 0.10) !important;
+    /* background-color: rgba(0, 123, 255, 0.10) !important; */
 }
 .box-shadow {
     box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
@@ -188,4 +188,16 @@ mark {
   }
 .cursor-pointer {
     cursor: pointer;
+}
+.text-capitalize {
+    text-transform: capitalize;
+}
+.line {
+    width: 25%;
+    border-top: 5px solid rgb(246, 89, 54);
+    margin: 20px 0px;
+    border-radius: 50%;
+}
+.hov-opacity-1:hover *{
+    opacity: 1 !important;
 }

@@ -9,7 +9,7 @@
       <hr>
       <div>
           <div>
-              <div class="d-flex mb-5 justify-content-end">
+              <div class="d-flex mb-5 justify-content-end" v-if="questions.length > 0">
                 <div class="p-2">
                     <select name="cars" class="custom-select bg-light" v-model="course"  @change="updateChapters()">
                         <option selected>Specify Course</option>
@@ -27,6 +27,9 @@
                     </select>                                  
                 </div>
               </div>
+                <p v-else class="p-5 text-sm text-center">
+                    Processed paper will be preview here
+                </p>              
               <div v-for="(item, i) in questions" :key="i" class="bd-bottom p-5">
                   <h2 class="font-gt-america mb-4">Section {{ sections[i]}}</h2>
                   <div class="pl-4">
@@ -37,7 +40,7 @@
                                 <input type="text" class="form-control" v-model="q.title">
                             </div>
                             <div class="form-group ml-2 flex-shrink-0 align-self-end" style="width:100px">
-                                <input type="text" class="form-control bd-none bd-radius-0 bd-round bg-light text-center" placeholder="Weight">
+                                <input type="text" class="form-control bd-none bd-radius-0 bd-round bg-light text-center" placeholder="Weight" v-model="q.weight">
                             </div>
                           </div>
                           <div class="d-flex">
@@ -52,7 +55,7 @@
                               <div class="p-2" v-if="q.topics.length > 0">
                                 <select name="cars" class="custom-select" v-model="q.topic" @change=" q.subtopics = q.topic.subtopics">
                                     <option selected>Select Topic</option>
-                                    <option :value="{...t, k}" v-for="(t, k) in q.topics" :key="k">
+                                    <option :value="t" v-for="(t, k) in q.topics" :key="k">
                                        {{ t.name }}      
                                     </option>
                                 </select>                              
@@ -60,7 +63,7 @@
                               <div class="p-2" v-if="q.subtopics.length > 0">
                                 <select name="cars" class="custom-select" v-model="q.subtopic">
                                     <option selected>Select subtopic</option>
-                                    <option :value="{...t, k}" v-for="(t, k) in q.subtopics" :key="k">
+                                    <option :value="t" v-for="(t, k) in q.subtopics" :key="k">
                                        {{ t }}      
                                     </option>
                                 </select>                              
@@ -76,10 +79,10 @@
                   </div>
               </div>
 
-              <div class="w-100 text-right p-4">
+              <div class="w-100 text-right p-4" v-if="chapters.length > 0">
                   <button @click="addBook()" class="btn bg-orange box-shadow text-white pl-4 pr-4 bd-round">
-                        <span v-if="addingBook" class="spinner-border spinner-border-sm mr-2"></span>    
-                        <span>Add Book</span>
+                        <span v-if="addingPaper" class="spinner-border spinner-border-sm mr-2"></span>    
+                        <span>Add Paper</span>
                   </button>
               </div>
           </div>
@@ -95,28 +98,19 @@ export default {
     data() {
         return {
             sections: ["B", "C"],
+            classes: [9, 10, 11, 12],
             section: [],
             questions: [],
             books: [],
             chapters: [],
             topics: [], subtopics: [],
-            addingBook: false,
+            addingPaper: false,
             course: "Specify Course",
             class_: "Specify Class"
         }
     },
     methods: {
-        updateSubTopic(topic) {
 
-            console.log(topic, 'my topic')
-            return
-            let c = parseInt(this.class_),
-                course = this.course
-            if(!Number.isNaN(c) && course != "Specify Course") {
-                console.log(this.topics[topic.i], 'subtopics')
-                // topic.subtopics = topic[] this.topics[topic.i].subtopics
-            }            
-        },
         updateTopics(chap) {
             let c = parseInt(this.class_),
                 course = this.course
@@ -129,31 +123,41 @@ export default {
             let c = parseInt(this.class_),
                 course = this.course
             if(!Number.isNaN(c) && course != "Specify Course") {
-                this.chapters = this.books[c][course].chapters
-                console.log(this.chapters, 'chapters')
+                if(this.books[c]) {
+                    if(this.books[c][course]) {
+                        this.chapters = this.books[c][course].chapters
+                    }
+                    else {
+                        this.alertmsg("Book Content of course " + course + " may not be available", "danger")
+                    }
+
+                }
+                else {
+                    this.alertmsg("Book Content of class " + this.classes[c] + " may not be available", "danger")
+                    setTimeout(() => {
+                        this.alertmsg("Please upload the Book Content of all classes first", "info")
+                        
+                    }, 3000);
+                }
             }
         },
         addBook() {
 
-            if(!this.course || this.course == "Specify Course") {
-                this.alertmsg("Please choose Course", "danger")
-                return
-            }
-            if(!this.class_ || this.class_ == "Specify Class") {
-                this.alertmsg("Please choose Class", "danger")
-                return
-            }
+            // console.log(this.questions, this.course, this.class_, 'questions')
+            // return
 
-            this.addingBook = true
+            this.addingPaper = true
             let obj = {
                 course: this.course,
-                class: this.class_,
-                chapters: this.chapters
+                class: this.classes[parseInt(this.class_)],
+                sections: this.questions,
             }
-            let test = "ABCD"
-            this.firebase_put_db({ ref: `books/${this.class_}`, child: this.course , obj }, (res) => {
-                this.alertmsg("Condition Added Succsessfully", "success")
-                location.reload()
+            this.firebase_push_db({ ref: `pastpapers/${obj.class}/${obj.course}` , obj }, (res) => {
+                this.alertmsg("Paper Added Successfully", "success")
+                this.addingPaper = false
+                setTimeout(() => {
+                    location.reload()                
+                }, 1000);
             })            
         },
         addNewSubtopic(i, j) {

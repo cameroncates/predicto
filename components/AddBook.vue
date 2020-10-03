@@ -8,22 +8,30 @@
       </div>
       <hr>
       <div>
-          <p v-if="chapters.length == 0 && books.length == 0" class="p-5 text-sm text-center">
+          <p v-if="chapters.length == 0 && books.length == 0 && loading" class="p-5 text-sm text-center">
             <span class="spinner-border spinner-border-sm mr-2 text-orange"></span> <br>
             <span>Loading</span>
           </p>
+          <p v-if="chapters.length == 0 && books.length == 0 && !loading" class="p-5 text-sm text-center">
+              Book Preview will be show here
+          </p>
           <div v-if="chapters.length == 0">
               <div v-for="(book, j) in books" :key="j" class="mb-5 hov p-4">
-                  <h1 class="font-gt-america text-center">Course Content of Class {{ book["Computer Science"].class }}</h1>
-                                      
-                  <h5 class="font-gt-america">Computer Sciene</h5>
+                  <h1 class="font-gt-america text-center">Course Content of Class {{ book["Computer Science"] ? book['Computer Science'].class : book['Pakistan Studies'].class }}</h1>
+
+                <div v-if="book['Computer Science']">
+                    <h5 class="font-gt-america">Computer Sciene</h5>
                     <div v-for="(item, i) in book['Computer Science'].chapters" :key="i" class="pl-5">
                         <p class="bd-bottom text-sm hov p-2 mb-0">Chapter {{ i + 1}} - <span> {{ item.name.toUpperCase() }}</span> </p>
-                    </div>
-                  <h5 class="font-gt-america mt-4">Pakistan Studies</h5>
+                    </div>                    
+                </div>    
+
+                <div v-if="book['Pakistan Studies']">
+                    <h5 class="font-gt-america mt-4">Pakistan Studies</h5>
                     <div v-for="(item, i) in book['Pakistan Studies'].chapters" :key="i+0.5" class="pl-5">
                         <p class="bd-bottom text-sm hov p-2 mb-0">Chapter {{ i + 1}} - <span> {{ item.name.toUpperCase() }}</span> </p>
-                    </div>
+                    </div>                    
+                </div>                                  
 
                     <hr style="border-top:3px solid black">
 
@@ -84,6 +92,7 @@ export default {
             books: [],
             chapters: [],
             addingBook: false,
+            loading: true,
             course: "Specify Course",
             class_: "Specify Class"
         }
@@ -108,7 +117,7 @@ export default {
             }
             let test = "ABCD"
             this.firebase_put_db({ ref: `books/${this.class_}`, child: this.course , obj }, (res) => {
-                this.alertmsg("Condition Added Succsessfully", "success")
+                this.alertmsg("Book Added Succsessfully", "success")
                 location.reload()
             })            
         },
@@ -127,7 +136,6 @@ export default {
                         this.chapters[i]["topics"] = this.getTopics(this.chapters[i])
                     }
               
-                    console.log(this.chapters, 'my chapters')
 
                 })
             })
@@ -136,7 +144,8 @@ export default {
     mounted() {
         this.firebase_books('books', (res) => {
             this.books = res
-            console.log(res)
+            console.log(this.books, 'books')
+            this.loading = false
         })
     }
 }

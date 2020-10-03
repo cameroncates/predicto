@@ -6,6 +6,72 @@ import $ from 'jquery'
 import PDFJS from 'pdfjs-dist'
 Vue.mixin({
     methods:{
+        dropdown(list, e) {
+            let container = $("<div>"),
+                timeout = null,
+                buttons = []
+            container.addClass("bg-white box-shadow pt-2 pb-2 animate__animated  animate__fadeIn animate__faster bd-radius-5")
+            container.css({
+                width: "200px",
+                position:"absolute",
+                left: "0px",
+                top: "0px",
+                zIndex: 10000
+            })
+            for(let i=0; i<list.length; i++) {
+                let button = $("<a>"),
+                    href = null
+        
+                button.addClass("btn text-sm bg-white btn-hov d-flex align-items-center text-left pl-3 pr-2 mt-0 btn-block animate__animated  animate__fadeInUp animate__faster")
+        
+                button.attr("href", 'javascript:void(0)')
+                button.html('<span class="mr-2 mdi mdi-24px '+list[i].icon+'"></span>' + list[i].title)
+                container.append(button)
+                buttons.push(button)
+            }
+            container.mouseleave(() => {
+                timeout = setTimeout(() => {
+                    container.remove()
+                }, 500);
+            })
+            container.mouseenter(() => clearTimeout(timeout))
+            $(window).click((e) => {
+                if(e.target.parentNode != container[0] && !$(e.target).hasClass('dropdown-btn') && e.target !== container[0]) {
+                    container.remove()
+                }
+            })
+        
+            $(window).resize(() => container.remove())
+            let top = $(e.currentTarget).offset().top,
+                left = $(e.currentTarget).offset().left,
+                w = $(window).width(),
+                h = $(window).height(),
+                w_ = $(container).width(),
+                h_ = $(container).height()
+        
+            if(top+h_ > h) {
+                container.css({
+                    top: (h - h_ - 10) + 'px'
+                })
+            } else {
+                container.css({
+                    top: (top + 10) + 'px'
+                })
+            }
+            if(left+w_ > w) {
+                container.css({
+                    left: (w - w_ - 10) + 'px'
+                })
+            } else {
+                container.css({
+                    left: (left) + 'px'
+                })
+            }
+        
+            $("body").append(container)
+        
+            return buttons
+        },
         setCookie(name,value,days) {
             value = JSON.stringify(value)
             var expires = "";
@@ -29,6 +95,15 @@ Vue.mixin({
         eraseCookie(name) {   
             document.cookie = name+'=; Max-Age=-99999999;';  
         },
+        mydate() {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+            
+            today = mm + '/' + dd + '/' + yyyy;
+            return today
+        },     
         
         format_url(str) {
             if(str.split(" ").length > 1) {
@@ -91,12 +166,31 @@ Vue.mixin({
                 }, 500);
             }, 2000);
         },
-        uploadfile() {
+        filetype(e) {
+            return e.target.files[0].type
+        },
+        handleImage(e, callback){
+            var reader = new FileReader();
+            reader.onload = function(event){
+                var img = new Image();
+                img.onload = function(){
+                    let canvas = document.createElement("canvas"),
+                        ctx = canvas.getContext("2d")
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img,0,0);
+                    callback(canvas)
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);     
+        },        
+        uploadfile(accept = "application/pdf") {
             var input=document.createElement('input');
             input.type="file";
             document.body.append(input)
             $(input).addClass("d-none")
-            $(input).attr("accept", "application/pdf")
+            $(input).attr("accept", accept)
             setTimeout(function() {
                 $(input).click();
             }, 100);
@@ -203,6 +297,16 @@ Vue.mixin({
             }  
             console.log('-------------------------------------------------')
         },
+        getSectionImg(paper) {
+            let lowercase = paper.toLowerCase()
+            let sectionB = lowercase.split(" q. 2 "),
+                sectionC = null
+            let split = " q.3 "
+            if(sectionB.length == 1) {
+                sectionB = lowercase.split("q.2")
+            }
+            return this.mysections(sectionB[1].split("\n"))
+        },
         getSection(paper) {            
             let lowercase = paper.toLowerCase()
 
@@ -226,12 +330,28 @@ Vue.mixin({
                 return -1 
             }
         },
+        mysections(q) {
+            for(let i=0; i<q.length; i++) {
+                if(i > 0) {
+                    if(q[i].includes("attempt any") || 
+                        q[i].includes("q.3") || 
+                        q[i].includes("q. 3") || 
+                        q[i].includes("section - c") ||
+                        q[i].includes("section ~ c")) {
+                        let sectionA = q.slice(0, i - 1),
+                            sectionB = q.slice(i, 10000)
+                            return [sectionA, sectionB]
+                    }
+                }
+            }
+            return -1
+        },
         getQuestions(section) {
             let maxQ = 100, cursor = 0, questions = []
             for(let j=1; j<=maxQ; j++) {
                 let Qend = section.indexOf(" " + (j+1) + ". ")
                 let q = section.substring(cursor, Qend == -1 ? 10000 : Qend)
-                questions.push({ title: q, chapter: "Select Chapter", topics: [], subtopics: [], topic: "Select Topic", subtopic: "Select Subtopic" })
+                questions.push({ title: q, chapter: "Select Chapter", topics: [], subtopics: [], topic: "Select Topic", subtopic: "Select Subtopic", weight: 10 })
                 cursor = Qend
 
                 if(Qend == -1 ) {

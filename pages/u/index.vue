@@ -11,10 +11,9 @@
             </button>
         </div>
         <div class="w-100">
-            <add-book v-if="tab=='book'" />
-            <add-paper v-else-if="tab=='paper'" />
-            <questionare v-else-if="tab=='questionare'" />
-            <papers v-else-if="tab=='papers'" />
+            <forum v-if="tab=='forum'" />
+            <create-forum v-else-if="tab=='create_forum'" />
+            <process-paper v-else-if="tab=='process_paper'" />
         </div>
     </div>
 </div>
@@ -22,30 +21,28 @@
 
 <script>
 import logo from "../../components/Logo"
-import addBook from "../../components/AddBook"
-import addPaper from "../../components/AddPaper"
-import questionare from "../../components/questionare"
-import papers from "../../components/papers"
+import forum from "../../components/forum"
+import createForum from "../../components/CreateForum"
+import processPaper from "../../components/processPaper"
 export default {
   components: {
     logo,
-    "add-book": addBook,
-    "add-paper": addPaper,
-    "papers": papers,
-    questionare
+    "forum": forum,
+    "create-forum": createForum,
+    "process-paper": processPaper
   },    
   data() {
       return {
-          tab: "questionare",
+          tab: "process_paper",
           navbar: [
-              { title: "Books", value: "book", icon: "mdi mdi-book-open" },
-              { title: "Add Paper", value: "paper", icon: "mdi mdi-file-plus" },
-              { title: "Write a Questionare", value: "questionare", icon: "mdi mdi-progress-question" },
-              { title: "My Papers", value: "papers", icon: "mdi mdi-file-document-multiple" },
+              { title: "My Forums", value: "forum", icon: "mdi mdi-book-open" },
+              { title: "Create a Forum", value: "create_forum", icon: "mdi mdi-book-open" },
+              { title: "Generate Paper", value: "process_paper", icon: "mdi mdi-file-document-multiple" },
           ]
       }
   },
   mounted() {
+    console.log(this.getCookie('project-predicto-2211'), 'cookie')      
   }
 
 }
